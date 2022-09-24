@@ -12,7 +12,9 @@ namespace net.EthanTFH.BTSGameJam
 
         #region Public Fields
         [field: Tooltip("The prefab to use for representing the player.")]
-            public GameObject playerPrefab;
+        public GameObject playerPrefabBig;
+        public GameObject playerPrefabSmall;
+        
 
         #endregion
 
@@ -52,7 +54,7 @@ namespace net.EthanTFH.BTSGameJam
 
         void Start()
         {
-            if (playerPrefab == null)
+            if (playerPrefabBig == null)
                 Debug.LogError("<Color=Red><a>Missing</a></Color> playerPrefab Reference on the GameManager.");
             else
             {
@@ -60,11 +62,30 @@ namespace net.EthanTFH.BTSGameJam
                 if(PlayerController.LocalPlayerInstance == null)
                 {
                     Debug.LogFormat("Making a new LocalPlayer for {0}", SceneManagerHelper.ActiveSceneName);
-                    
-                    if (GameObject.Find("Floor"))
-                        PhotonNetwork.Instantiate(this.playerPrefab.name, new Vector3(0f, GameObject.Find("Floor").transform.position.y + 5, 0f), Quaternion.identity, 0);
-                    else
-                        PhotonNetwork.Instantiate(this.playerPrefab.name, new Vector3(0f, 5f, 0f), Quaternion.identity, 0);
+
+                    if (PhotonNetwork.CurrentRoom.PlayerCount == 1)
+                    {
+                        Debug.Log("Player Count 1");
+                        if (GameObject.Find("Floor"))
+                        {
+                            PhotonNetwork.Instantiate(this.playerPrefabBig.name, new Vector3(0f, GameObject.Find("Floor").transform.position.y + 8, 0f), Quaternion.identity, 0);
+                        }
+                        else
+                            PhotonNetwork.Instantiate(this.playerPrefabBig.name, new Vector3(0f, 5f, 0f), Quaternion.identity, 0);
+                    }
+                    if (PhotonNetwork.CurrentRoom.PlayerCount == 2)
+                    {
+                        Debug.Log("Player Count 2");
+                        if (GameObject.Find("Floor"))
+                        {
+                            PhotonNetwork.Instantiate(this.playerPrefabSmall.name, new Vector3(0f, GameObject.Find("Floor").transform.position.y + 8, 0f), Quaternion.identity, 0);
+                        }
+                        else
+                            PhotonNetwork.Instantiate(this.playerPrefabSmall.name, new Vector3(0f, 5f, 0f), Quaternion.identity, 0);
+                    }
+
+
+
 
                 }
                 else

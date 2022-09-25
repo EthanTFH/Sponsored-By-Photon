@@ -39,6 +39,9 @@ namespace net.EthanTFH.BTSGameJam {
         private float rotationY, rotationX;
         private Vector3 currentRotation;
 
+        private bool movingObject = false;
+        private GameObject objectBeingMoved = null;
+        
         void Start()
         {
             // If We are the Small Player we want to disable 3D view and enable 2D view
@@ -82,6 +85,30 @@ namespace net.EthanTFH.BTSGameJam {
                 // Update Y Rotation around player.
                 mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
                 mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
+            }
+
+            if (Input.GetMouseButtonDown(0))
+            {
+                if(!movingObject)
+                {
+                    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                    if (Physics.Raycast(ray, out RaycastHit hitInfo))
+                    {
+                        if (hitInfo.collider.gameObject.CompareTag("Moveable"))
+                        {
+                            hitInfo.collider.gameObject.GetComponent<MoverScript>().playerMoving = targetPlayer.gameObject;
+                            hitInfo.collider.gameObject.GetComponent<MoverScript>().isMoving = true;
+                            movingObject = true;
+                            objectBeingMoved = hitInfo.collider.gameObject;
+                        }
+                    }
+                }
+                else
+                {
+                    objectBeingMoved.GetComponent<MoverScript>().isMoving = false;
+                    movingObject = false;
+                    objectBeingMoved = null;
+                }
             }
 
             distanceFromTarget -= Input.mouseScrollDelta.y;

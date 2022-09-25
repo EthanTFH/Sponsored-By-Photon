@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace net.EthanTFH.BTSGameJam
@@ -21,6 +22,9 @@ namespace net.EthanTFH.BTSGameJam
 
             if (cam == null)
                 cam = Camera.main;
+
+            cam.clearFlags = CameraClearFlags.SolidColor;
+            cam.backgroundColor = new Color(0.509804f, 0.509804f, 0.509804f);
             Debug.Log("CamerModeTwo has been enabled!.");
         }
 
@@ -40,7 +44,15 @@ namespace net.EthanTFH.BTSGameJam
             transform.position = new Vector3(distanceFromTarget, targetPlayer.position.y, targetPlayer.position.z);
             transform.rotation = Quaternion.Euler(0, -90, 0);
 
-            GameObject[] objects = GameObject.FindGameObjectsWithTag("StandardObject");
+            GameObject[] o1 = GameObject.FindGameObjectsWithTag("StandardObject");
+            GameObject[] o2 = GameObject.FindGameObjectsWithTag("Moveable");
+            GameObject[] objects;
+
+            if (o2.Length > 0)
+                objects = o1.Concat(o2).ToArray();
+            else
+                objects = o1;
+
             foreach(GameObject o in objects)
             {
                 o.GetComponent<Renderer>().material.SetFloat("_ClippingPlaneZ", -100);

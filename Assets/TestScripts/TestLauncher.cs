@@ -17,7 +17,7 @@ namespace net.EthanTFH.BTSGameJam {
         [field: SerializeField, Tooltip("The progress label.")]
             private GameObject progressLabel;
         [field: Tooltip("The Game Version. (IMPORTANT)")]
-            string gameVersion = "0.2.0";
+            string gameVersion = "0.3.0";
 
         #endregion
 

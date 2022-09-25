@@ -14,6 +14,7 @@ namespace net.EthanTFH.BTSGameJam
         [field: Tooltip("The prefab to use for representing the player.")]
         public GameObject playerPrefabBig;
         public GameObject playerPrefabSmall;
+        public GameObject blokerPrefab;
         
 
         #endregion
@@ -83,16 +84,15 @@ namespace net.EthanTFH.BTSGameJam
                         else
                             PhotonNetwork.Instantiate(this.playerPrefabSmall.name, new Vector3(0f, 5f, 0f), Quaternion.identity, 0);
                     }
-
-
-
-
                 }
                 else
                 {
                     Debug.LogFormat("Ignoring scene load for {0}", SceneManagerHelper.ActiveSceneName);
                 }
             }
+
+            if(PhotonNetwork.IsMasterClient)
+                PhotonNetwork.Instantiate(this.blokerPrefab.name, new Vector3(2.25f, 23, 43), Quaternion.identity, 0);
         }
 
         public void LeaveRoom()

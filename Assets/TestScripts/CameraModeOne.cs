@@ -1,29 +1,38 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
+using Photon.Realtime;
 
 namespace net.EthanTFH.BTSGameJam {
-    public class CameraControls : MonoBehaviour
+    public class CameraModeOne : MonoBehaviour
     {
         [field: Header("Camera Settings")]
-        [field: SerializeField, Tooltip("Maximum Distance The Camera Can Move From The Player"), Range(5, 20)]
+        [field: SerializeField, Range(5, 20)]
         protected float cameraMaxDistance = 10f;
-        [field: SerializeField, Tooltip("Minimum Distance The Camera Can Move From The Player"), Range(3, 15)]
+        [field: SerializeField, Range(3, 15)]
         protected float cameraMinDistance = 3f;
-        [field: Tooltip("Mouse Sensitivity Float")]
         public float mouseSensitivity = 3.0f;
-        [field: Tooltip("Max and Minimum Mouse Position Float"), Range(-100, 100)]
+        [field: Range(-100, 100)]
         public float maxX = 40, minX = -40;
-        [field: SerializeField, Tooltip("Smoothing Velocity Vector3")]
+
+
+        [SerializeField]
         private Vector3 smoothVelocity = Vector3.zero;
-        [field: SerializeField, Tooltip("Smoothing Time Float")]
+        [SerializeField]
         private float smoothTime = 0.2f;
-        [field: SerializeField, Tooltip("Will the game capture the users mouse")]
+        [SerializeField]
         private bool doCaptureMouse = true;
 
-        [field: Header("Objects")]
-        [field: SerializeField, Tooltip("Camera Object")]
+        [field: Header("Objects"), SerializeField]
         private Camera cam;
+
+        public enum ClientType
+        {
+            MasterClient = 0,NormalClient = 1
+        }
+
+        public ClientType SmallPlayer = ClientType.NormalClient;
 
         private Transform targetPlayer;
         private float distanceFromTarget = 4.0f;
@@ -32,22 +41,35 @@ namespace net.EthanTFH.BTSGameJam {
 
         void Start()
         {
+            // If We are the Small Player we want to disable 3D view and enable 2D view
+            if ((SmallPlayer == ClientType.MasterClient && PhotonNetwork.IsMasterClient) ||
+                (SmallPlayer == ClientType.NormalClient && !PhotonNetwork.IsMasterClient))
+            {
+                gameObject.GetComponent<CameraModeTwo>().enabled = true;
+                gameObject.GetComponent<CameraModeOne>().enabled = false;
+            }
+            
+
+            // Capture the cursor
             if (doCaptureMouse)
                 Cursor.lockState = CursorLockMode.Confined;
             else
                 Cursor.lockState = CursorLockMode.None;
 
+            // Obtain the camera and target player
             if (cam == null)
                 cam = Camera.main;
             if (targetPlayer == null && PlayerController.LocalPlayerInstance != null)
                 targetPlayer = PlayerController.LocalPlayerInstance.transform;
+
+
+            
         }
 
         void FixedUpdate()
         {
             if (targetPlayer == null || targetPlayer.transform == null)
             {
-                Debug.Log("Attemting to find the target player.");
                 if(PlayerController.LocalPlayerInstance)
                     targetPlayer = PlayerController.LocalPlayerInstance.transform;
                 return;

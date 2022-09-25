@@ -11,6 +11,7 @@ namespace net.EthanTFH.BTSGameJam
         [field: Tooltip("Player NameTag GameObject")]
             private GameObject nameTag;
 
+        [SerializeField]
         [field: Tooltip("The Local Player Instance, can be accessed by other scripts.")]
             public static GameObject LocalPlayerInstance;
 
@@ -23,33 +24,58 @@ namespace net.EthanTFH.BTSGameJam
             if (photonView.IsMine)
                 PlayerController.LocalPlayerInstance = this.gameObject;
 
-            Debug.LogFormat("Player Name: {0}", PhotonNetwork.NickName);
-            Debug.LogFormat("PhotonView.IsMine: {0}", photonView.IsMine);
-            Debug.LogFormat("LocalPlayerInstance: {0}", LocalPlayerInstance);
-
             DontDestroyOnLoad(this.gameObject);
         }
 
         // Start is called before the first frame update
         void Start()
         {
+            // Ensure we have a name tag object.
             if (nameTag == null)
                 nameTag = this.transform.Find("NameTag").gameObject;
 
+            // Set the name tag of the cube.
             nameTag.GetComponent<TMPro.TextMeshPro>().text = photonView.Owner.NickName;
-#if UNITY_5_4_OR_NEWER
             UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
-#endif
         }
 
         // Update is called once per frame
         void FixedUpdate()
         {
 
+            // Ensures that we are controlling only our own player.
             if (photonView.IsMine == false && PhotonNetwork.IsConnected == true)
                 return;
 
-            // Code to Control Player Movemenet.
+            // Detects what view (and the movement method) we should use
+            if ((PhotonNetwork.IsMasterClient && Camera.main.GetComponent<CameraModeOne>().SmallPlayer == CameraModeOne.ClientType.MasterClient) ||
+                (!PhotonNetwork.IsMasterClient && Camera.main.GetComponent<CameraModeOne>().SmallPlayer == CameraModeOne.ClientType.NormalClient))
+                MovementTwo();
+            else
+                MovementThree();
+
+            // Code to make *all* name tags face the camera.
+            GameObject[] nameTags = GameObject.FindGameObjectsWithTag("NameTag");
+            for (int i = 0; i < nameTags.Length; i++)
+                nameTags[i].transform.LookAt(Camera.main.transform);
+
+        }
+
+        //Function for 2D Movement
+        private void MovementTwo()
+        {
+            // Code for player movement in the 2nd Dimension.
+            if (Input.GetKey(KeyCode.A))
+                transform.position = transform.position - transform.forward * walkSpeed * Time.deltaTime;
+            if (Input.GetKey(KeyCode.D))
+                transform.position = transform.position + transform.forward * walkSpeed * Time.deltaTime;
+        }
+
+
+        //Function for 3D Movement
+        private void MovementThree()
+        {
+            // Code for player movement in the 3rd Dimension.
             if (Input.GetKey(KeyCode.W))
                 transform.position = transform.position + transform.forward * walkSpeed * Time.deltaTime;
             if (Input.GetKey(KeyCode.S))
@@ -58,14 +84,8 @@ namespace net.EthanTFH.BTSGameJam
                 transform.Rotate(Vector3.down * turnSpeed * 10 * Time.deltaTime);
             if (Input.GetKey(KeyCode.D))
                 transform.Rotate(Vector3.up * turnSpeed * 10 * Time.deltaTime);
-
-            GameObject[] nameTags = GameObject.FindGameObjectsWithTag("NameTag");
-            for (int i = 0; i < nameTags.Length; i++)
-            {
-                nameTags[i].transform.LookAt(Camera.main.transform);
-            }
         }
-        
+
 #if UNITY_5_4_OR_NEWER
         void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode loadingMode)
         {
@@ -79,6 +99,7 @@ namespace net.EthanTFH.BTSGameJam
 
         void CalledOnLevelWasLoaded(int level)
         {
+            // Ensure the player is actually on top of something.
             if(!Physics.Raycast(transform.position, -Vector3.up, 5f))
             {
                 if (GameObject.Find("Floor"))

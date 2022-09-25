@@ -44,21 +44,25 @@ namespace net.EthanTFH.BTSGameJam
             transform.position = new Vector3(distanceFromTarget, targetPlayer.position.y, targetPlayer.position.z);
             transform.rotation = Quaternion.Euler(0, -90, 0);
 
-            GameObject[] o1 = GameObject.FindGameObjectsWithTag("StandardObject");
+            GameObject[] objects = GameObject.FindGameObjectsWithTag("StandardObject");
             GameObject[] o2 = GameObject.FindGameObjectsWithTag("Moveable");
-            GameObject[] objects;
+            GameObject[] o3 = GameObject.FindGameObjectsWithTag("Player");
 
             if (o2.Length > 0)
-                objects = o1.Concat(o2).ToArray();
-            else
-                objects = o1;
+                objects = objects.Concat(o2).ToArray();
+
+            if (o3.Length > 0)
+                objects = objects.Concat(o3).ToArray();
 
             foreach(GameObject o in objects)
             {
-                o.GetComponent<Renderer>().material.SetFloat("_ClippingPlaneZ", -100);
-                o.GetComponent<Renderer>().material.SetFloat("_ClippingPlaneX", 1.5f);
-                o.GetComponent<Renderer>().material.SetFloat("_ClippingPlaneY", -100);
-                o.GetComponent<Renderer>().material.SetFloat("_ClippignPlaneXT", -4);
+                if(o.GetComponent<Renderer>().material.HasFloat("_ClippingPlaneX"))
+                {
+                    o.GetComponent<Renderer>().material.SetFloat("_ClippingPlaneZ", -100);
+                    o.GetComponent<Renderer>().material.SetFloat("_ClippingPlaneX", 1.5f);
+                    o.GetComponent<Renderer>().material.SetFloat("_ClippingPlaneY", -100);
+                    o.GetComponent<Renderer>().material.SetFloat("_ClippignPlaneXT", -4);
+                }
             }
             
         }

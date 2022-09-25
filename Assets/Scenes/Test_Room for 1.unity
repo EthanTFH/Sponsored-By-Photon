@@ -1029,7 +1029,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Tutorial Scene - 0.3.0
+  m_text: 'Tutorial Scene - 0.3.2
 
     Single Player'
   m_isRightToLeft: 0
